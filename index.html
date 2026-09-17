@@ -60,7 +60,34 @@
             z-index: 5;
         }
 
-        /* 4. Тёмная рамка по краям */
+        /* 4. Контейнер и изображение черепа по центру */
+        .skull-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 7; /* Поверх волн и фона */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .skull-img {
+            height: 58vh; /* Адаптивная высота под любые мониторы */
+            max-height: 560px;
+            width: auto;
+            object-fit: contain;
+
+            /* Глубокая рассеянная тень вокруг черепа, падающая на волны (как на фото) */
+            filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.95))
+                    drop-shadow(15px 5px 35px rgba(0, 0, 0, 0.85));
+
+            /* Нежное покачивание в такт волнам */
+            animation: skullFloating 7s ease-in-out infinite alternate;
+        }
+
+        /* 5. Тёмная рамка по краям */
         .screen-frame {
             position: absolute;
             inset: 0;
@@ -93,6 +120,16 @@
                 transform: translate(3%, -3%) scale(0.98);
             }
         }
+
+        /* Мягкая левитация черепа */
+        @keyframes skullFloating {
+            0% {
+                transform: translateY(0px) scale(1);
+            }
+            100% {
+                transform: translateY(-10px) scale(1.015);
+            }
+        }
     </style>
 </head>
 <body>
@@ -101,8 +138,13 @@
     <div class="flowing-gradient"></div>
     <div class="silk-overlay"></div>
 
-    <!-- Чёткие анимированные волны -->
+    <!-- Анимированные волны -->
     <canvas id="waveCanvas"></canvas>
+
+    <!-- Череп по центру -->
+    <div class="skull-wrapper">
+        <img src="Skull1.png" alt="Skull" class="skull-img">
+    </div>
 
     <!-- Тёмная рамка -->
     <div class="screen-frame"></div>
@@ -129,8 +171,6 @@
 
             const slope = (h * 1.05) / w;
             const baseSpacing = (h + w * slope) / (lineCount - 0.4);
-
-            // Сохраняем рассчитанные пути для двухслойной отрисовки
             const paths = [];
 
             for (let i = 0; i < lineCount; i++) {
@@ -152,9 +192,7 @@
                 paths.push(points);
             }
 
-            // ========================================================
-            // СЛОЙ 1: Глубокая чёткая тень под линиями (для 3D-объёма)
-            // ========================================================
+            // 1. Слой глубокой тени под волнами
             ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
             ctx.shadowBlur = 12;
             ctx.shadowOffsetX = 1;
@@ -172,13 +210,11 @@
                 ctx.stroke();
             }
 
-            // ========================================================
-            // СЛОЙ 2: Чёткая, контрастная серая линия (без размытия краёв)
-            // ========================================================
-            ctx.shadowColor = 'transparent'; // Отключаем размытие для идеальной чёткости
+            // 2. Слой четких серых линий
+            ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
             ctx.lineWidth = 7.5;
-            ctx.strokeStyle = '#6c7278'; // Контрастный светлый графит
+            ctx.strokeStyle = '#6c7278';
 
             for (let i = 0; i < paths.length; i++) {
                 const pts = paths[i];
