@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Screen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #121214;
+        }
+
+        /* 1. Основной плывущий градиент с диагональными полосами */
+        .flowing-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                125deg,
+                #4e171b 0%,
+                #8e333a 16%,
+                #ba464e 28%,
+                #722429 42%,
+                #18181b 58%,
+                #291e20 68%,
+                #8a2f35 84%,
+                #50181c 100%
+            );
+            background-size: 260% 260%;
+            animation: flowMotion 10s ease-in-out infinite alternate;
+        }
+
+        /* 2. Дополнительный слой мягких волн света (создаёт эффект перелива шёлка) */
+        .silk-overlay {
+            position: absolute;
+            inset: -25%;
+            background: 
+                radial-gradient(ellipse at 25% 35%, rgba(205, 75, 85, 0.4) 0%, transparent 55%),
+                radial-gradient(ellipse at 75% 65%, rgba(15, 15, 18, 0.7) 0%, transparent 60%);
+            filter: blur(35px);
+            animation: waveMotion 14s ease-in-out infinite alternate;
+            mix-blend-mode: screen;
+            pointer-events: none;
+        }
+
+        /* 3. Тёмная рамка по краям экрана как на скриншоте */
+        .screen-frame {
+            position: absolute;
+            inset: 0;
+            border: 14px solid #16171a;
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.85);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Анимация перетекания градиента */
+        @keyframes flowMotion {
+            0% {
+                background-position: 0% 15%;
+            }
+            50% {
+                background-position: 100% 85%;
+            }
+            100% {
+                background-position: 15% 100%;
+            }
+        }
+
+        /* Анимация колебания световых волн */
+        @keyframes waveMotion {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                transform: translate(-4%, 3%) scale(1.04);
+            }
+            100% {
+                transform: translate(3%, -3%) scale(0.98);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Плывущий фон -->
+    <div class="flowing-gradient"></div>
+    <div class="silk-overlay"></div>
+
+    <!-- Рамка по краям -->
+    <div class="screen-frame"></div>
+
+</body>
+</html>
