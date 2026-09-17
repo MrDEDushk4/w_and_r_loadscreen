@@ -18,49 +18,58 @@
             background-color: #121214;
         }
 
-        /* 1. Основной плывущий градиент с диагональными полосами */
+        /* 1. Основной плывущий градиентный фон */
         .flowing-gradient {
             position: absolute;
             inset: 0;
             background: linear-gradient(
                 125deg,
-                #4e171b 0%,
-                #8e333a 16%,
-                #ba464e 28%,
+                #4a1518 0%,
+                #8a3138 16%,
+                #b8474f 28%,
                 #722429 42%,
                 #18181b 58%,
                 #291e20 68%,
                 #8a2f35 84%,
-                #50181c 100%
+                #4e171b 100%
             );
             background-size: 260% 260%;
-            animation: flowMotion 10s ease-in-out infinite alternate;
+            animation: flowMotion 11s ease-in-out infinite alternate;
         }
 
-        /* 2. Дополнительный слой мягких волн света (создаёт эффект перелива шёлка) */
+        /* 2. Слой переливающегося мягкого света */
         .silk-overlay {
             position: absolute;
             inset: -25%;
             background: 
                 radial-gradient(ellipse at 25% 35%, rgba(205, 75, 85, 0.4) 0%, transparent 55%),
-                radial-gradient(ellipse at 75% 65%, rgba(15, 15, 18, 0.7) 0%, transparent 60%);
+                radial-gradient(ellipse at 75% 65%, rgba(15, 15, 18, 0.75) 0%, transparent 60%);
             filter: blur(35px);
             animation: waveMotion 14s ease-in-out infinite alternate;
             mix-blend-mode: screen;
             pointer-events: none;
         }
 
-        /* 3. Тёмная рамка по краям экрана как на скриншоте */
+        /* 3. Холст для анимированных рельефных волн */
+        #waveCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* 4. Тёмная рамка по краям как на скриншоте */
         .screen-frame {
             position: absolute;
             inset: 0;
             border: 14px solid #16171a;
-            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.85);
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.9);
             pointer-events: none;
             z-index: 10;
         }
 
-        /* Анимация перетекания градиента */
         @keyframes flowMotion {
             0% {
                 background-position: 0% 15%;
@@ -73,7 +82,6 @@
             }
         }
 
-        /* Анимация колебания световых волн */
         @keyframes waveMotion {
             0% {
                 transform: translate(0, 0) scale(1);
@@ -89,12 +97,84 @@
 </head>
 <body>
 
-    <!-- Плывущий фон -->
+    <!-- Градиентный фон -->
     <div class="flowing-gradient"></div>
     <div class="silk-overlay"></div>
 
-    <!-- Рамка по краям -->
+    <!-- Анимированные контурные волны -->
+    <canvas id="waveCanvas"></canvas>
+
+    <!-- Внешняя тёмная рамка -->
     <div class="screen-frame"></div>
 
+    <script>
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Количество диагональных волн (как на скриншоте)
+        const lineCount = 6;
+        let time = 0;
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Настройки стиля линий со скриншота
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = '#4e5154'; // Серый цвет линий
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.65)'; // Глубокая тень под линиями
+            ctx.shadowBlur = 9;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 5;
+
+            // Угол наклона диагонали
+            const slope = (h * 1.05) / w;
+            const baseSpacing = (h + w * slope) / (lineCount - 0.4);
+
+            for (let i = 0; i < lineCount; i++) {
+                ctx.beginPath();
+
+                const baseY = i * baseSpacing - (w * slope * 0.12);
+                const phase = i * 0.85;
+                let started = false;
+
+                // Прорисовка гладкой волны
+                for (let x = -50; x <= w + 50; x += 6) {
+                    const normX = x / w;
+
+                    // Волновые колебания (S-образная форма + плавное дыхание)
+                    const wave1 = Math.sin(normX * Math.PI * 2.2 + time * 0.75 + phase) * (h * 0.055);
+                    const wave2 = Math.cos(normX * Math.PI * 1.4 - time * 0.5 + phase * 1.2) * (h * 0.035);
+                    const breathe = Math.sin(time * 0.4 + phase) * (h * 0.02);
+
+                    const y = baseY - (x * slope) + wave1 + wave2 + breathe;
+
+                    if (!started) {
+                        ctx.moveTo(x, y);
+                        started = true;
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+
+                ctx.stroke();
+            }
+
+            // Скорость движения волн (плавная и ненавязчивая)
+            time += 0.012;
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
 </body>
 </html>
