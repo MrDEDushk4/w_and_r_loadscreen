@@ -18,6 +18,14 @@
             background-color: #121214;
         }
 
+        /* Если у вас есть .ttf файл этого фирменного шрифта, положите его рядом и раскомментируйте: */
+        /*
+        @font-face {
+            font-family: 'WhiteRedFont';
+            src: url('font.ttf') format('truetype');
+        }
+        */
+
         /* 1. Плывущий градиентный фон */
         .flowing-gradient {
             position: absolute;
@@ -50,7 +58,7 @@
             pointer-events: none;
         }
 
-        /* 3. Холст для контрастных анимированных волн */
+        /* 3. Холст для анимированных волн */
         #waveCanvas {
             position: absolute;
             inset: 0;
@@ -60,34 +68,86 @@
             z-index: 5;
         }
 
-        /* 4. Контейнер и изображение черепа по центру */
-        .skull-wrapper {
+        /* 4. Единый контейнер: Череп + Текст */
+        .brand-center {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 7; /* Поверх волн и фона */
+            z-index: 7;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             pointer-events: none;
+            /* Плавная левитация всей композиции вместе */
+            animation: brandFloat 7s ease-in-out infinite alternate;
         }
 
+        /* --- ВЕРХНИЙ ТЕКСТ: WELCOME TO --- */
+        .welcome-title {
+            font-family: 'WhiteRedFont', 'Impact', 'Arial Black', sans-serif;
+            font-size: clamp(30px, 3.8vw, 48px);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: -18px; /* Приближает текст к верху черепа */
+            z-index: 8;
+            user-select: none;
+        }
+
+        .c-welco {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .c-me {
+            color: rgba(222, 33, 33, 0.25);
+        }
+
+        .c-to {
+            color: rgba(130, 26, 26, 0.25);
+        }
+
+        /* --- ЧЕРЕП --- */
         .skull-img {
-            height: 58vh; /* Адаптивная высота под любые мониторы */
-            max-height: 560px;
+            height: 56vh;
+            max-height: 550px;
             width: auto;
             object-fit: contain;
-
-            /* Глубокая рассеянная тень вокруг черепа, падающая на волны (как на фото) */
             filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.95))
                     drop-shadow(15px 5px 35px rgba(0, 0, 0, 0.85));
-
-            /* Нежное покачивание в такт волнам */
-            animation: skullFloating 7s ease-in-out infinite alternate;
         }
 
-        /* 5. Тёмная рамка по краям */
+        /* --- НИЖНИЙ ТЕКСТ: W&R --- */
+        .wr-logo {
+            font-family: 'WhiteRedFont', 'Impact', 'Arial Black', sans-serif;
+            font-size: clamp(80px, 9.5vw, 130px);
+            line-height: 0.8;
+            margin-top: -85px; /* Перекрывает зубы черепа ровно как на скриншоте */
+            z-index: 9;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 6px 15px rgba(0, 0, 0, 0.9));
+        }
+
+        .c-w {
+            color: #FFFFFF;
+        }
+
+        .c-amp {
+            /* Вертикальный градиент: сверху #B5B5B5, снизу #720A0C */
+            background: linear-gradient(180deg, #B5B5B5 0%, #720A0C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .c-r {
+            color: #A61717;
+        }
+
+        /* 5. Тёмная рамка по краям экрана */
         .screen-frame {
             position: absolute;
             inset: 0;
@@ -98,55 +158,49 @@
         }
 
         @keyframes flowMotion {
-            0% {
-                background-position: 0% 15%;
-            }
-            50% {
-                background-position: 100% 85%;
-            }
-            100% {
-                background-position: 15% 100%;
-            }
+            0% { background-position: 0% 15%; }
+            50% { background-position: 100% 85%; }
+            100% { background-position: 15% 100%; }
         }
 
         @keyframes waveMotion {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
-            50% {
-                transform: translate(-4%, 3%) scale(1.04);
-            }
-            100% {
-                transform: translate(3%, -3%) scale(0.98);
-            }
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-4%, 3%) scale(1.04); }
+            100% { transform: translate(3%, -3%) scale(0.98); }
         }
 
-        /* Мягкая левитация черепа */
-        @keyframes skullFloating {
-            0% {
-                transform: translateY(0px) scale(1);
-            }
-            100% {
-                transform: translateY(-10px) scale(1.015);
-            }
+        @keyframes brandFloat {
+            0% { transform: translate(-50%, -50%) translateY(0px) scale(1); }
+            100% { transform: translate(-50%, -50%) translateY(-10px) scale(1.015); }
         }
     </style>
 </head>
 <body>
 
-    <!-- Градиентный фон -->
+    <!-- Плывущий градиент -->
     <div class="flowing-gradient"></div>
     <div class="silk-overlay"></div>
 
     <!-- Анимированные волны -->
     <canvas id="waveCanvas"></canvas>
 
-    <!-- Череп по центру -->
-    <div class="skull-wrapper">
+    <!-- Центр: Текст + Череп + W&R -->
+    <div class="brand-center">
+        <!-- Сверху: WELCOME TO с раздельной прозрачностью -->
+        <div class="welcome-title">
+            <span class="c-welco">WELCO</span><span class="c-me">ME</span> <span class="c-to">TO</span>
+        </div>
+
+        <!-- Череп по центру -->
         <img src="Skull1.png" alt="Skull" class="skull-img">
+
+        <!-- Снизу: W&R с градиентом амперсанда и перекрытием зубов -->
+        <div class="wr-logo">
+            <span class="c-w">W</span><span class="c-amp">&amp;</span><span class="c-r">R</span>
+        </div>
     </div>
 
-    <!-- Тёмная рамка -->
+    <!-- Внешняя рамка экрана -->
     <div class="screen-frame"></div>
 
     <script>
@@ -192,7 +246,7 @@
                 paths.push(points);
             }
 
-            // 1. Слой глубокой тени под волнами
+            // Тень волн
             ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
             ctx.shadowBlur = 12;
             ctx.shadowOffsetX = 1;
@@ -210,7 +264,7 @@
                 ctx.stroke();
             }
 
-            // 2. Слой четких серых линий
+            // Контурные серые линии
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
             ctx.lineWidth = 7.5;
