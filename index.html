@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loading Screen</title>
+    <!-- Подключение аккуратного шрифта Montserrat для слогана -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -17,14 +22,6 @@
             overflow: hidden;
             background-color: #121214;
         }
-
-        /* Если у вас есть .ttf файл этого фирменного шрифта, положите его рядом и раскомментируйте: */
-        /*
-        @font-face {
-            font-family: 'WhiteRedFont';
-            src: url('font.ttf') format('truetype');
-        }
-        */
 
         /* 1. Плывущий градиентный фон */
         .flowing-gradient {
@@ -68,10 +65,10 @@
             z-index: 5;
         }
 
-        /* 4. Единый контейнер: Череп + Текст */
+        /* 4. Единый центр: Текст + Череп + W&R */
         .brand-center {
             position: absolute;
-            top: 50%;
+            top: 48%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 7;
@@ -80,37 +77,28 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            /* Плавная левитация всей композиции вместе */
             animation: brandFloat 7s ease-in-out infinite alternate;
         }
 
         /* --- ВЕРХНИЙ ТЕКСТ: WELCOME TO --- */
         .welcome-title {
-            font-family: 'WhiteRedFont', 'Impact', 'Arial Black', sans-serif;
+            font-family: 'Impact', 'Arial Black', sans-serif;
             font-size: clamp(30px, 3.8vw, 48px);
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: -18px; /* Приближает текст к верху черепа */
+            margin-bottom: -18px;
             z-index: 8;
             user-select: none;
         }
 
-        .c-welco {
-            color: rgba(255, 255, 255, 0.25);
-        }
-
-        .c-me {
-            color: rgba(222, 33, 33, 0.25);
-        }
-
-        .c-to {
-            color: rgba(130, 26, 26, 0.25);
-        }
+        .c-welco { color: rgba(255, 255, 255, 0.25); }
+        .c-me    { color: rgba(222, 33, 33, 0.25); }
+        .c-to    { color: rgba(130, 26, 26, 0.25); }
 
         /* --- ЧЕРЕП --- */
         .skull-img {
-            height: 56vh;
-            max-height: 550px;
+            height: 54vh;
+            max-height: 520px;
             width: auto;
             object-fit: contain;
             filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.95))
@@ -119,10 +107,10 @@
 
         /* --- НИЖНИЙ ТЕКСТ: W&R --- */
         .wr-logo {
-            font-family: 'WhiteRedFont', 'Impact', 'Arial Black', sans-serif;
+            font-family: 'Impact', 'Arial Black', sans-serif;
             font-size: clamp(80px, 9.5vw, 130px);
             line-height: 0.8;
-            margin-top: -85px; /* Перекрывает зубы черепа ровно как на скриншоте */
+            margin-top: -85px;
             z-index: 9;
             user-select: none;
             display: flex;
@@ -131,23 +119,36 @@
             filter: drop-shadow(0 6px 15px rgba(0, 0, 0, 0.9));
         }
 
-        .c-w {
-            color: #FFFFFF;
-        }
-
+        .c-w { color: #FFFFFF; }
         .c-amp {
-            /* Вертикальный градиент: сверху #B5B5B5, снизу #720A0C */
             background: linear-gradient(180deg, #B5B5B5 0%, #720A0C 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             display: inline-block;
         }
+        .c-r { color: #A61717; }
 
-        .c-r {
-            color: #A61717;
+        /* 5. Слоган в нижней части экрана */
+        .bottom-slogan {
+            position: absolute;
+            bottom: clamp(24px, 3.8vh, 38px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 8;
+            font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+            font-size: clamp(13px, 1.25vw, 19px);
+            font-weight: 400;
+            color: #FFFFFF;
+            /* Широкая расстановка букв как на скриншоте */
+            letter-spacing: clamp(6px, 0.55vw, 11px);
+            white-space: nowrap;
+            user-select: none;
+            pointer-events: none;
+            text-align: center;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95), 0 0 4px rgba(0, 0, 0, 0.8);
         }
 
-        /* 5. Тёмная рамка по краям экрана */
+        /* 6. Тёмная рамка по краям экрана */
         .screen-frame {
             position: absolute;
             inset: 0;
@@ -186,21 +187,23 @@
 
     <!-- Центр: Текст + Череп + W&R -->
     <div class="brand-center">
-        <!-- Сверху: WELCOME TO с раздельной прозрачностью -->
         <div class="welcome-title">
             <span class="c-welco">WELCO</span><span class="c-me">ME</span> <span class="c-to">TO</span>
         </div>
 
-        <!-- Череп по центру -->
         <img src="Skull1.png" alt="Skull" class="skull-img">
 
-        <!-- Снизу: W&R с градиентом амперсанда и перекрытием зубов -->
         <div class="wr-logo">
             <span class="c-w">W</span><span class="c-amp">&amp;</span><span class="c-r">R</span>
         </div>
     </div>
 
-    <!-- Внешняя рамка экрана -->
+    <!-- Нижняя надпись (слоган) -->
+    <div class="bottom-slogan">
+        Без лишнего хлама. Без имбалансного говна.
+    </div>
+
+    <!-- Внешняя рамка -->
     <div class="screen-frame"></div>
 
     <script>
