@@ -4,17 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loading Screen</title>
-    <!-- Подключение аккуратного шрифта Montserrat для слогана -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap" rel="stylesheet">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body, html {
             width: 100%;
@@ -23,10 +18,13 @@
             background-color: #121214;
         }
 
-        /* 1. Плывущий градиентный фон */
+        /* 1. Градиент: статичный, увеличенный в 2.5 раза. Двигаем через transform
+              (не перерисовывается, в отличие от background-position) */
         .flowing-gradient {
             position: absolute;
-            inset: 0;
+            top: 0; left: 0;
+            width: 250%;
+            height: 250%;
             background: linear-gradient(
                 125deg,
                 #481417 0%,
@@ -38,24 +36,24 @@
                 #8a2f35 84%,
                 #4e171b 100%
             );
-            background-size: 260% 260%;
-            animation: flowMotion 11s ease-in-out infinite alternate;
+            will-change: transform;
+            animation: flowMotion 14s ease-in-out infinite alternate;
         }
 
-        /* 2. Слой мягкого светового перелива */
+        /* 2. Световой перелив: без blur() и mix-blend-mode (самые дорогие эффекты).
+              Радиальные градиенты и так мягкие */
         .silk-overlay {
             position: absolute;
             inset: -25%;
-            background: 
-                radial-gradient(ellipse at 25% 35%, rgba(205, 75, 85, 0.35) 0%, transparent 55%),
-                radial-gradient(ellipse at 75% 65%, rgba(15, 15, 18, 0.75) 0%, transparent 60%);
-            filter: blur(35px);
-            animation: waveMotion 14s ease-in-out infinite alternate;
-            mix-blend-mode: screen;
+            background:
+                radial-gradient(ellipse at 25% 35%, rgba(205, 75, 85, 0.30) 0%, transparent 60%),
+                radial-gradient(ellipse at 75% 65%, rgba(15, 15, 18, 0.70) 0%, transparent 65%);
             pointer-events: none;
+            will-change: transform;
+            animation: waveMotion 16s ease-in-out infinite alternate;
         }
 
-        /* 3. Холст для анимированных волн */
+        /* 3. Волны: канвас рисуется в уменьшенном разрешении, растягивается CSS */
         #waveCanvas {
             position: absolute;
             inset: 0;
@@ -65,22 +63,22 @@
             z-index: 5;
         }
 
-        /* 4. Единый центр: Текст + Череп + W&R */
+        /* 4. Центр */
         .brand-center {
             position: absolute;
             top: 48%;
             left: 50%;
-            transform: translate(-50%, -50%);
             z-index: 7;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             pointer-events: none;
+            transform: translate(-50%, -50%);
+            will-change: transform;
             animation: brandFloat 7s ease-in-out infinite alternate;
         }
 
-        /* --- ВЕРХНИЙ ТЕКСТ: WELCOME TO --- */
         .welcome-title {
             font-family: 'Impact', 'Arial Black', sans-serif;
             font-size: clamp(30px, 3.8vw, 48px);
@@ -95,17 +93,16 @@
         .c-me    { color: rgba(222, 33, 33, 0.25); }
         .c-to    { color: rgba(130, 26, 26, 0.25); }
 
-        /* --- ЧЕРЕП --- */
+        /* Череп: один drop-shadow вместо двух. Анимируется только родитель (transform),
+           так что фильтр растеризуется один раз */
         .skull-img {
             height: 54vh;
             max-height: 520px;
             width: auto;
             object-fit: contain;
-            filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.95))
-                    drop-shadow(15px 5px 35px rgba(0, 0, 0, 0.85));
+            filter: drop-shadow(8px 12px 28px rgba(0, 0, 0, 0.9));
         }
 
-        /* --- НИЖНИЙ ТЕКСТ: W&R --- */
         .wr-logo {
             font-family: 'Impact', 'Arial Black', sans-serif;
             font-size: clamp(80px, 9.5vw, 130px);
@@ -116,7 +113,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            filter: drop-shadow(0 6px 15px rgba(0, 0, 0, 0.9));
+            /* text-shadow дешевле, чем filter: drop-shadow */
+            text-shadow: 0 6px 15px rgba(0, 0, 0, 0.9);
         }
 
         .c-w { color: #FFFFFF; }
@@ -125,10 +123,11 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             display: inline-block;
+            /* text-shadow на прозрачном тексте даст артефакт */
+            text-shadow: none;
         }
         .c-r { color: #A61717; }
 
-        /* 5. Слоган в нижней части экрана */
         .bottom-slogan {
             position: absolute;
             bottom: clamp(24px, 3.8vh, 38px);
@@ -139,7 +138,6 @@
             font-size: clamp(13px, 1.25vw, 19px);
             font-weight: 400;
             color: #FFFFFF;
-            /* Широкая расстановка букв как на скриншоте */
             letter-spacing: clamp(6px, 0.55vw, 11px);
             white-space: nowrap;
             user-select: none;
@@ -148,7 +146,6 @@
             text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95), 0 0 4px rgba(0, 0, 0, 0.8);
         }
 
-        /* 6. Тёмная рамка по краям экрана */
         .screen-frame {
             position: absolute;
             inset: 0;
@@ -158,34 +155,31 @@
             z-index: 10;
         }
 
+        /* Все анимации только на transform */
         @keyframes flowMotion {
-            0% { background-position: 0% 15%; }
-            50% { background-position: 100% 85%; }
-            100% { background-position: 15% 100%; }
+            0%   { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-55%, -50%, 0); }
         }
 
         @keyframes waveMotion {
-            0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(-4%, 3%) scale(1.04); }
-            100% { transform: translate(3%, -3%) scale(0.98); }
+            0%   { transform: translate3d(0, 0, 0) scale(1); }
+            50%  { transform: translate3d(-4%, 3%, 0) scale(1.04); }
+            100% { transform: translate3d(3%, -3%, 0) scale(0.98); }
         }
 
         @keyframes brandFloat {
-            0% { transform: translate(-50%, -50%) translateY(0px) scale(1); }
-            100% { transform: translate(-50%, -50%) translateY(-10px) scale(1.015); }
+            0%   { transform: translate(-50%, -50%) translateY(0); }
+            100% { transform: translate(-50%, -50%) translateY(-10px); }
         }
     </style>
 </head>
 <body>
 
-    <!-- Плывущий градиент -->
     <div class="flowing-gradient"></div>
     <div class="silk-overlay"></div>
 
-    <!-- Анимированные волны -->
     <canvas id="waveCanvas"></canvas>
 
-    <!-- Центр: Текст + Череп + W&R -->
     <div class="brand-center">
         <div class="welcome-title">
             <span class="c-welco">WELCO</span><span class="c-me">ME</span> <span class="c-to">TO</span>
@@ -198,96 +192,98 @@
         </div>
     </div>
 
-    <!-- Нижняя надпись (слоган) -->
     <div class="bottom-slogan">
         Без лишнего хлама. Без дизбалансного говна.
     </div>
 
-    <!-- Внешняя рамка -->
     <div class="screen-frame"></div>
 
     <script>
         const canvas = document.getElementById('waveCanvas');
         const ctx = canvas.getContext('2d');
 
+        // ---- Настройки производительности ----
+        const RENDER_SCALE = 0.6;   // разрешение канваса относительно экрана (0.5-1)
+        const TARGET_FPS   = 30;    // волны медленные, 30 кадров достаточно
+        const X_STEP       = 20;    // шаг точек по X (было 6)
+        const LINE_COUNT   = 6;
+
+        const FRAME_MS = 1000 / TARGET_FPS;
+        let w = 0, h = 0;
+
         function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            w = Math.max(1, Math.round(window.innerWidth  * RENDER_SCALE));
+            h = Math.max(1, Math.round(window.innerHeight * RENDER_SCALE));
+            canvas.width = w;
+            canvas.height = h;
         }
         window.addEventListener('resize', resize);
         resize();
 
-        const lineCount = 6;
         let time = 0;
+        let last = 0;
 
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const w = canvas.width;
-            const h = canvas.height;
-
+        function buildPath() {
             const slope = (h * 1.05) / w;
-            const baseSpacing = (h + w * slope) / (lineCount - 0.4);
-            const paths = [];
+            const baseSpacing = (h + w * slope) / (LINE_COUNT - 0.4);
+            const step = X_STEP * RENDER_SCALE;
 
-            for (let i = 0; i < lineCount; i++) {
-                const points = [];
+            // Все 6 линий в ОДНОМ path -> один вызов stroke() вместо шести
+            ctx.beginPath();
+            for (let i = 0; i < LINE_COUNT; i++) {
                 const baseY = i * baseSpacing - (w * slope * 0.12);
                 const phase = i * 0.85;
+                const breathe = Math.sin(time * 0.4 + phase) * (h * 0.02);
 
-                for (let x = -50; x <= w + 50; x += 6) {
+                let first = true;
+                for (let x = -50; x <= w + 50; x += step) {
                     const normX = x / w;
-
-                    const wave1 = Math.sin(normX * Math.PI * 2.2 + time * 0.75 + phase) * (h * 0.055);
-                    const wave2 = Math.cos(normX * Math.PI * 1.4 - time * 0.5 + phase * 1.2) * (h * 0.035);
-                    const breathe = Math.sin(time * 0.4 + phase) * (h * 0.02);
-
-                    const y = baseY - (x * slope) + wave1 + wave2 + breathe;
-                    points.push({ x, y });
+                    const y = baseY - (x * slope)
+                        + Math.sin(normX * Math.PI * 2.2 + time * 0.75 + phase) * (h * 0.055)
+                        + Math.cos(normX * Math.PI * 1.4 - time * 0.5 + phase * 1.2) * (h * 0.035)
+                        + breathe;
+                    if (first) { ctx.moveTo(x, y); first = false; }
+                    else ctx.lineTo(x, y);
                 }
-
-                paths.push(points);
             }
-
-            // Тень волн
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-            ctx.shadowBlur = 12;
-            ctx.shadowOffsetX = 1;
-            ctx.shadowOffsetY = 6;
-            ctx.lineWidth = 8.5;
-            ctx.strokeStyle = 'rgba(15, 15, 18, 0.85)';
-
-            for (let i = 0; i < paths.length; i++) {
-                const pts = paths[i];
-                ctx.beginPath();
-                ctx.moveTo(pts[0].x, pts[0].y);
-                for (let j = 1; j < pts.length; j++) {
-                    ctx.lineTo(pts[j].x, pts[j].y);
-                }
-                ctx.stroke();
-            }
-
-            // Контурные серые линии
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.lineWidth = 7.5;
-            ctx.strokeStyle = '#6c7278';
-
-            for (let i = 0; i < paths.length; i++) {
-                const pts = paths[i];
-                ctx.beginPath();
-                ctx.moveTo(pts[0].x, pts[0].y);
-                for (let j = 1; j < pts.length; j++) {
-                    ctx.lineTo(pts[j].x, pts[j].y);
-                }
-                ctx.stroke();
-            }
-
-            time += 0.012;
-            requestAnimationFrame(animate);
         }
 
-        animate();
+        function animate(now) {
+            requestAnimationFrame(animate);
+
+            const delta = now - last;
+            if (delta < FRAME_MS) return;
+            last = now - (delta % FRAME_MS);
+
+            // Скорость анимации не зависит от fps
+            time += 0.012 * (delta / 16.667);
+
+            ctx.clearRect(0, 0, w, h);
+            ctx.lineJoin = 'round';
+
+            // Тень: shadowBlur ОЧЕНЬ дорогой на каждом кадре, поэтому
+            // имитируем тень более широкой тёмной линией со смещением
+            ctx.save();
+            ctx.translate(1 * RENDER_SCALE, 6 * RENDER_SCALE);
+            buildPath();
+            ctx.lineWidth = 12 * RENDER_SCALE;
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
+            ctx.stroke();
+            ctx.restore();
+
+            // Тёмная подложка линии
+            buildPath();
+            ctx.lineWidth = 8.5 * RENDER_SCALE;
+            ctx.strokeStyle = 'rgba(15, 15, 18, 0.85)';
+            ctx.stroke();
+
+            // Серая линия сверху (тот же path)
+            ctx.lineWidth = 7.5 * RENDER_SCALE;
+            ctx.strokeStyle = '#6c7278';
+            ctx.stroke();
+        }
+
+        requestAnimationFrame(animate);
     </script>
 </body>
 </html>
